@@ -1,0 +1,8 @@
+{
+  "name": "A one-byte gap beyond Number.MAX_SAFE_INTEGER",
+  "totalBytes": "9007199254741001",
+  "ranges": [
+    {"id": "prefix", "start": "0", "end": "9007199254740992"},
+    {"id": "suffix", "start": "9007199254740993", "end": "9007199254741001"}
+  ]
+}

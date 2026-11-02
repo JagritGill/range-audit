@@ -1,0 +1,10 @@
+{
+  "name": "A chunk upload with a gap and overlap",
+  "totalBytes": "12",
+  "ranges": [
+    {"id": "chunk-a", "start": "0", "end": "4"},
+    {"id": "chunk-b", "start": "4", "end": "7"},
+    {"id": "chunk-c", "start": "6", "end": "9"},
+    {"id": "chunk-d", "start": "10", "end": "12"}
+  ]
+}
