@@ -19,8 +19,10 @@ exit status. The core contains only erasable TypeScript, executed by Node.
 ## Sweep semantics
 
 Each range contributes `+1` at its start and `-1` at its end. Add zero-delta
-events at zero and at the target size, sort by exact offset, and group equal
-offsets. Apply the entire group before describing the span to the next offset.
+events at zero and at the target size, then sort by exact offset. Iterate over
+events directly: emit the preceding span only when the offset advances, then
+apply the current event's delta. Equal-offset events emit no span, so every delta
+in a group is applied before describing the span to the next distinct offset.
 This implements half-open intervals and avoids false overlaps between touching
 ranges. Event ordering inside a group has no effect.
 
@@ -87,8 +89,16 @@ share the production event-sweep implementation.
 Other tests target values beyond Number.MAX_SAFE_INTEGER, 30-digit boundaries,
 coalescing, touching endpoints, repeated intervals, empty targets, invalid input,
 SVG escaping, and competing file writers. Tests execute native TypeScript source
-through Node's built-in test runner. There is no static type-check step; type
-annotations complement runtime checks but are not themselves a validation result.
+through Node's built-in test runner.
+
+Separately, TypeScript 6.0.3 checks all three `src/**/*.ts` modules with `strict`,
+`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, and `erasableSyntaxOnly`.
+The check emits no JavaScript; Node still executes the original source. The
+compiler is the only development dependency, pinned in the lockfile. No Node
+type declarations are needed because the typed core uses only ES2024 built-ins.
+The JavaScript CLI, tests, and release scanner remain outside the static check.
+Static checking complements runtime validation of untrusted JSON and the oracle;
+it cannot prove the sweep's algorithmic correctness. CI runs both kinds of checks.
 
 For an interview, explain why half-open ranges simplify boundaries, why counts
 must not pass through JSON numbers, how overlap differs from redundancy, and

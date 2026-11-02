@@ -22,6 +22,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
+      - name: Install pinned development compiler without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Strict TypeScript core check
+        run: npm run check:types
       - name: Runtime, exhaustive coverage, CLI, and race tests
         run: node --test tests/*.test.mjs
       - name: Release inventory and credential patterns

@@ -5,7 +5,8 @@ import {fileURLToPath, pathToFileURL} from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 export const EXPECTED = new Set([
-  ".gitignore", ".github/workflows/ci.yml", "package.json", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
+  ".gitignore", ".github/workflows/ci.yml", "package.json", "package-lock.json", "tsconfig.json",
+  "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
   "cli.mjs", "src/model.ts", "src/audit.ts", "src/format.ts", "docs/architecture.md",
   "examples/incomplete.json", "examples/complete.json", "examples/large-offsets.json",
   "scripts/check-release.mjs", "tests/audit.test.mjs", "tests/model.test.mjs", "tests/cli.test.mjs", "tests/release.test.mjs",
@@ -56,15 +57,24 @@ export function checkRelease() {
   walk(ROOT);
   for (const name of EXPECTED) if (!found.has(name)) issues.push(`${name}: missing file`);
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
+  for (const field of ["dependencies", "optionalDependencies"]) {
     if (Object.keys(pkg[field] ?? {}).length) issues.push(`package.json: unexpected ${field}`);
+  }
+  if (JSON.stringify(pkg.devDependencies) !== JSON.stringify({typescript: "6.0.3"})) {
+    issues.push("package.json: development dependencies differ from the reviewed compiler");
+  }
+  const lock = JSON.parse(readFileSync(join(ROOT, "package-lock.json"), "utf8"));
+  if (Object.keys(lock.packages ?? {}).sort().join(",") !== ",node_modules/typescript" ||
+      lock.packages?.["node_modules/typescript"]?.version !== pkg.devDependencies?.typescript) {
+    issues.push("package-lock.json: unexpected package inventory or compiler version");
   }
   if (issues.length) {
     console.error("Release check failed; values redacted:\n" + issues.join("\n"));
     return 1;
   }
   console.log(`PASS: ${found.size} inventoried text files; no matching credential or personal-path patterns.`);
-  console.log("PASS: no npm dependencies; inspected runtime imports are local or Node built-ins without network/process imports.");
+  console.log("PASS: no npm runtime dependencies; only the pinned TypeScript development compiler is allowed.");
+  console.log("PASS: inspected runtime imports are local or Node built-ins without network/process imports.");
   console.log("Heuristic check only. Review provenance and exact staged contents separately.");
   return 0;
 }

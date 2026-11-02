@@ -1,7 +1,7 @@
 # Dependencies and provenance
 
 The application and tests use Node.js built-in modules only. There are no npm
-runtime or development dependencies, downloaded assets, fonts, images, or data.
+runtime dependencies, downloaded assets, fonts, images, or data.
 Node is supplied by the user's environment and is not vendored. Node's own
 [license and third-party notices](https://github.com/nodejs/node/blob/v24.4.1/LICENSE)
 cover the runtime and its incorporated components, including its type-stripping
@@ -10,6 +10,13 @@ implementation. This project does not relicense or redistribute those components
 Native TypeScript support and its lack of static type checking are described in
 the official [Node documentation](https://nodejs.org/api/typescript.html). Tests
 use the built-in [test runner](https://nodejs.org/api/test.html).
+
+The single development dependency is Microsoft TypeScript **6.0.3**, used only
+for static checking. Its npm artifact and integrity hash are pinned in
+`package-lock.json`. It is licensed under [Apache-2.0](https://github.com/microsoft/TypeScript/blob/v6.0.3/LICENSE.txt),
+and its [source repository](https://github.com/microsoft/TypeScript/tree/v6.0.3)
+retains its notices. The compiler is not vendored or relicensed; installing it
+retrieves its own package and license. No compiler code is copied into this project.
 
 GitHub CI uses external MIT-licensed actions pinned to release commits. Their
 notices remain in their respective repositories:

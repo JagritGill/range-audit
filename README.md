@@ -128,11 +128,26 @@ permutation invariance, output safety, and SVG escaping. See
 [architecture and tradeoffs](docs/architecture.md).
 
 Source uses erasable TypeScript syntax and Node's [native type stripping](https://nodejs.org/api/typescript.html).
-Runtime validation and automated tests are included. **No static TypeScript type
-checker is bundled or run**; Node strips annotations without checking them.
-There are no npm runtime or development dependencies, and no build step. The
-package is marked private to prevent accidental npm publication; the source
-repository remains public.
+Node executes the source without checking types. A separate strict TypeScript
+check covers all three core modules in `src/`, with unchecked indexed accesses,
+exact optional properties, and erasable syntax enforced. CI runs this check and
+the runtime tests on Node 24 and 26. The JavaScript CLI, tests, and release scanner
+are covered by runtime checks, not by the TypeScript configuration.
+
+There are no npm runtime dependencies or build step. For development checks,
+install the single pinned development dependency, TypeScript 6.0.3:
+
+```sh
+npm ci --ignore-scripts --no-audit --no-fund
+npm run check:types
+npm test
+npm run check:release
+```
+
+`npm ci` needs access to the package registry or a populated local npm cache;
+the application and runtime tests continue to work offline without installation.
+The lockfile pins the compiler artifact and integrity hash. The package is marked
+private to prevent accidental npm publication; the source repository remains public.
 
 This is not an upload client, storage verifier, checksum tool, or HTTP Range
 header parser. Inputs are synthetic examples or user-supplied metadata; no

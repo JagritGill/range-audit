@@ -36,22 +36,20 @@ export function audit(value: unknown): Audit {
   events.sort((a, b) => a.at < b.at ? -1 : a.at > b.at ? 1 : 0);
   const segments: Segment[] = [];
   let depth = 0;
-  let index = 0;
-  while (index < events.length) {
-    const start = events[index].at;
-    // Apply all starts/ends together: touching ranges do not overlap.
-    while (index < events.length && events[index].at === start) {
-      depth += events[index].delta;
-      index++;
+  let start = 0n;
+  for (const event of events) {
+    if (event.at > start) {
+      const end = event.at;
+      const last = segments.at(-1);
+      if (last && last.depth === depth && last.end === start) {
+        segments[segments.length - 1] = {start: last.start, end, depth};
+      } else {
+        segments.push({start, end, depth});
+      }
+      start = end;
     }
-    if (index === events.length) break;
-    const end = events[index].at;
-    const last = segments.at(-1);
-    if (last && last.depth === depth && last.end === start) {
-      segments[segments.length - 1] = {start: last.start, end, depth};
-    } else {
-      segments.push({start, end, depth});
-    }
+    // Equal-offset events emit no span, so all ties apply before the next span.
+    depth += event.delta;
   }
   let coveredBytes = 0n;
   let overlapBytes = 0n;
