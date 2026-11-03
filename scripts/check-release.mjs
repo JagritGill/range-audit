@@ -5,6 +5,7 @@ import {fileURLToPath, pathToFileURL} from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 export const EXPECTED = new Set([
+  "AGENTS.md",
   ".gitignore", ".github/workflows/ci.yml", "package.json", "package-lock.json", "tsconfig.json",
   "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md",
   "cli.mjs", "src/model.ts", "src/audit.ts", "src/format.ts", "docs/architecture.md",
